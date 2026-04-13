@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 
 st.set_page_config(layout='wide')
-st.title('Profit Dashboard for USA Branches')
+st.title('Sales Dashboard for USA Branches')
 
 @st.cache_data
 def load_data():
@@ -14,58 +14,44 @@ def load_data():
 
 df = load_data()
 
-# --- Custom Styling ---
-custom_template = "plotly_white"
-bg_color = "lightgrey"
-line_color_single = "darkgrey" # For single line plots
-discrete_colors = ['#88B04B', '#F7CAC9', '#92A8D1', '#9B2335', '#A2AB58', '#E6A29F', '#795548', '#FFB6C1', '#DDA0DD'] # A subdued palette
+# --- Custom Styling for Dark Grey Background ---
+custom_template = "plotly_dark" # Using a dark template as a base
+bg_color = "#262626" # Dark grey color
 
-# --- Sidebar for Filters ---
-st.sidebar.header('Filter Data')
+st.header('Overview of Sales Data')
+st.write(f"Total Sales Records: {len(df):,}")
+st.write(df.head())
 
-# Region filter
-available_regions = df['Region'].unique()
-selected_regions = st.sidebar.multiselect('Select Region(s)', available_regions, available_regions)
+st.subheader('Sales Over Time')
+fig_sales_time = px.line(df.sort_values('Order Date'), x='Order Date', y='Sales', title='Sales Over Time', height=400,
+                          template=custom_template)
+fig_sales_time.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
+st.plotly_chart(fig_sales_time, use_container_width=True)
 
-# Category filter
-available_categories = df['Category'].unique()
-selected_categories = st.sidebar.multiselect('Select Category(s)', available_categories, available_categories)
+st.subheader('Total Sales by Region')
+sales_by_region = df.groupby('Region')['Sales'].sum().reset_index()
+fig_sales_region = px.bar(sales_by_region, x='Region', y='Sales', title='Total Sales by Region', height=400,
+                           template=custom_template)
+fig_sales_region.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
+st.plotly_chart(fig_sales_region, use_container_width=True)
 
-# Filter data based on selected regions and categories
-filtered_df = df[df['Region'].isin(selected_regions) & df['Category'].isin(selected_categories)]
+st.subheader('Total Sales by Category')
+sales_by_category = df.groupby('Category')['Sales'].sum().reset_index()
+fig_sales_category = px.pie(sales_by_category, values='Sales', names='Category', title='Total Sales by Category',
+                            template=custom_template)
+fig_sales_category.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
+st.plotly_chart(fig_sales_category, use_container_width=True)
 
-st.header('Overview of Profit Data')
-st.write(f"Total Profit Records (filtered): {len(filtered_df):,}")
-st.write(filtered_df.head())
+st.subheader('Top 10 Sales by Sub-Category')
+sales_by_subcategory = df.groupby('Sub-Category')['Sales'].sum().nlargest(10).reset_index()
+fig_sales_subcategory = px.bar(sales_by_subcategory, x='Sub-Category', y='Sales', title='Top 10 Sales by Sub-Category', height=400,
+                                template=custom_template)
+fig_sales_subcategory.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
+st.plotly_chart(fig_sales_subcategory, use_container_width=True)
 
-st.subheader('Total Profit by Region')
-profit_by_region = filtered_df.groupby('Region')['Profit'].sum().reset_index()
-fig_profit_region = px.bar(profit_by_region, x='Region', y='Profit', title='Total Profit by Region', height=400,
-                           template=custom_template,
-                           color='Region', # Color by region to use discrete_colors
-                           color_discrete_sequence=discrete_colors)
-fig_profit_region.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
-st.plotly_chart(fig_profit_region, use_container_width=True)
-
-st.subheader('Total Profit by Category')
-profit_by_category = filtered_df.groupby('Category')['Profit'].sum().reset_index()
-fig_profit_category = px.pie(profit_by_category, values='Profit', names='Category', title='Total Profit by Category',
-                            template=custom_template,
-                            color_discrete_sequence=discrete_colors)
-fig_profit_category.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
-st.plotly_chart(fig_profit_category, use_container_width=True)
-
-st.subheader('Top 10 Profit by Sub-Category')
-profit_by_subcategory = filtered_df.groupby('Sub-Category')['Profit'].sum().nlargest(10).reset_index()
-fig_profit_subcategory = px.bar(profit_by_subcategory, x='Sub-Category', y='Profit', title='Top 10 Profit by Sub-Category', height=400,
-                                template=custom_template,
-                                color='Sub-Category', # Color by sub-category
-                                color_discrete_sequence=discrete_colors)
-fig_profit_subcategory.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
-st.plotly_chart(fig_profit_subcategory, use_container_width=True)
-
-st.subheader('Profit by State in USA')
-profit_by_state = filtered_df.groupby('State')['Profit'].sum().reset_index()
+# Add the Sales by State Choropleth Map with dark background and hover info
+st.subheader('Sales by State in USA')
+sales_by_state = df.groupby('State')['Sales'].sum().reset_index()
 
 # State abbreviations mapping
 state_abbreviations = {
@@ -82,18 +68,18 @@ state_abbreviations = {
     'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
 }
 
-profit_by_state['State Abbreviation'] = profit_by_state['State'].map(state_abbreviations)
+sales_by_state['State Abbreviation'] = sales_by_state['State'].map(state_abbreviations)
 
-fig_profit_state_map = px.choropleth(profit_by_state,
+fig_sales_state_map = px.choropleth(sales_by_state,
                                    locations='State',
                                    locationmode='USA-states',
-                                   color='Profit',
+                                   color='Sales',
                                    scope='usa',
-                                   color_continuous_scale="Viridis", # Changed from Greys to Viridis for testing
-                                   title='Total Profit by State',
+                                   color_continuous_scale="Plasma", # Changed to Plasma for better visibility
+                                   title='Total Sales by State',
                                    hover_name='State',
-                                   hover_data={'State Abbreviation': True, 'Profit': ':,.2f'},
+                                   hover_data={'State Abbreviation': True, 'Sales': ':,.2f'},
                                    height=600,
                                    template=custom_template)
-fig_profit_state_map.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
-st.plotly_chart(fig_profit_state_map, use_container_width=True)
+fig_sales_state_map.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
+st.plotly_chart(fig_sales_state_map, use_container_width=True)
