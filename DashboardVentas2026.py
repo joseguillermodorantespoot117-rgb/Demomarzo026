@@ -46,5 +46,6 @@ fig_sales_state_map = px.choropleth(sales_by_state,
                                    scope='usa',
                                    color_continuous_scale="Viridis",
                                    title='Total Sales by State',
+                                   hover_name='State',
                                    height=600)
 st.plotly_chart(fig_sales_state_map, use_container_width=True)
