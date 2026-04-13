@@ -10,7 +10,7 @@ st.title('Dashboard de Personajes de Cómics DC')
 # Asegúrate de que el archivo 'dc-wikia-data.csv' esté en la misma carpeta que tu app.py
 # O especifica la ruta completa: pd.read_csv('/ruta/completa/dc-wikia-data.csv')
 try:
-    comics_df = pd.read_csv('/datos/dc-wikia-data.csv')
+    comics_df = pd.read_csv('datos/dc-wikia-data.csv')
 except FileNotFoundError:
     st.error("Error: El archivo 'dc-wikia-data.csv' no se encontró. Asegúrate de que la ruta sea correcta.")
     st.stop()
