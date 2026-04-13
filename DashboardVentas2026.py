@@ -48,4 +48,3 @@ fig_sales_state_map = px.choropleth(sales_by_state,
                                    title='Total Sales by State',
                                    height=600)
 st.plotly_chart(fig_sales_state_map, use_container_width=True)
-''')
