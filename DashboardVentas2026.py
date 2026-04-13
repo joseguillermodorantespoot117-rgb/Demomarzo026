@@ -1,5 +1,3 @@
-with open('dashboard_ventas.py', 'w') as f:
-    f.write('''
 import streamlit as st
 import pandas as pd
 import plotly.express as px
