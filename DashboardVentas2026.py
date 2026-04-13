@@ -103,6 +103,5 @@ fig_state = px.choropleth(
 fig_state.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color, geo_scope='usa') # Asegura que el mapa esté centrado en USA
 st.plotly_chart(fig_state, use_container_width=True)
 st.markdown('---') # Separador visual
-''')
 
 print("Streamlit app 'dashboard_ventas.py' has been updated with advanced map features and filtering.")
