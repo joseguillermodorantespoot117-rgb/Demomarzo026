@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
+st.title('Hola soy Guillermo y estoy estudiando fundamentos para el analisis de datos - Mi Aplicación Streamlit con DataFrame y Gráfico de Líneas')
 # Configurar la página de Streamlit
 st.set_page_config(layout="wide")
 st.title('Mi Aplicación Streamlit con DataFrame y Gráfico de Líneas')
