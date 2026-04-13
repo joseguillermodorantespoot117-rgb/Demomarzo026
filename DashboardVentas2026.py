@@ -68,7 +68,7 @@ fig_profit_subcategory.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_col
 st.plotly_chart(fig_profit_subcategory, use_container_width=True)
 
 st.subheader('Sales by State in USA')
-sales_by_state = filtered_df.groupby('State')['Sales'].sum().reset_index()
+sales_by_state = filtered_df.groupby('State')['Profit'].sum().reset_index()
 
 # State abbreviations mapping
 state_abbreviations = {
