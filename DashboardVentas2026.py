@@ -2,12 +2,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# --- Streamlit App --- (This content will be written to dashboard_ventas.py)
-
 st.set_page_config(layout='wide')
-st.title('Sales Dashboard for USA Branches')
+st.title('Profit Dashboard for USA Branches')
 
-# Load Data (Assuming the file is in the same path as before)
 @st.cache_data
 def load_data():
     file_path = 'datos/SalidaVentas.xlsx'
@@ -17,42 +14,93 @@ def load_data():
 
 df = load_data()
 
-st.header('Overview of Sales Data')
-st.write(f"Total Sales Records: {len(df):,}")
-st.write(df.head())
+# --- Custom Styling ---
+custom_template = "plotly_white"
+bg_color = "lightgrey"
+line_color_single = "darkgrey" # For single line plots
+discrete_colors = ['#88B04B', '#F7CAC9', '#92A8D1', '#9B2335', '#A2AB58', '#E6A29F', '#795548', '#FFB6C1', '#DDA0DD'] # A subdued palette
 
-# 1. Sales over time
-st.subheader('Sales Over Time')
-fig_sales_time = px.line(df.sort_values('Order Date'), x='Order Date', y='Sales', title='Sales Over Time', height=400)
-st.plotly_chart(fig_sales_time, use_container_width=True)
+# --- Sidebar for Filters ---
+st.sidebar.header('Filter Data')
 
-# 2. Sales by Region
-st.subheader('Total Sales by Region')
-sales_by_region = df.groupby('Region')['Sales'].sum().reset_index()
-fig_sales_region = px.bar(sales_by_region, x='Region', y='Sales', title='Total Sales by Region', height=400)
-st.plotly_chart(fig_sales_region, use_container_width=True)
+# Region filter
+available_regions = df['Region'].unique()
+selected_regions = st.sidebar.multiselect('Select Region(s)', available_regions, available_regions)
 
-# 3. Sales by Category
-st.subheader('Total Sales by Category')
-sales_by_category = df.groupby('Category')['Sales'].sum().reset_index()
-fig_sales_category = px.pie(sales_by_category, values='Sales', names='Category', title='Total Sales by Category')
-st.plotly_chart(fig_sales_category, use_container_width=True)
+# Category filter
+available_categories = df['Category'].unique()
+selected_categories = st.sidebar.multiselect('Select Category(s)', available_categories, available_categories)
 
-# 4. Sales by Sub-Category (Top 10)
-st.subheader('Top 10 Sales by Sub-Category')
-sales_by_subcategory = df.groupby('Sub-Category')['Sales'].sum().nlargest(10).reset_index()
-fig_sales_subcategory = px.bar(sales_by_subcategory, x='Sub-Category', y='Sales', title='Top 10 Sales by Sub-Category', height=400)
-st.plotly_chart(fig_sales_subcategory, use_container_width=True)
+# Filter data based on selected regions and categories
+filtered_df = df[df['Region'].isin(selected_regions) & df['Category'].isin(selected_categories)]
 
-# 5. Sales by State (Choropleth Map)
-st.subheader('Sales by State in USA')
-sales_by_state = df.groupby('State')['Sales'].sum().reset_index()
-fig_sales_state_map = px.choropleth(sales_by_state,
+st.header('Overview of Profit Data')
+st.write(f"Total Profit Records (filtered): {len(filtered_df):,}")
+st.write(filtered_df.head())
+
+st.subheader('Profit Over Time')
+fig_profit_time = px.line(filtered_df.sort_values('Order Date'), x='Order Date', y='Profit', title='Profit Over Time', height=400,
+                          template=custom_template,
+                          line_color=line_color_single) # Using a single subdued color for the line
+fig_profit_time.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
+st.plotly_chart(fig_profit_time, use_container_width=True)
+
+st.subheader('Total Profit by Region')
+profit_by_region = filtered_df.groupby('Region')['Profit'].sum().reset_index()
+fig_profit_region = px.bar(profit_by_region, x='Region', y='Profit', title='Total Profit by Region', height=400,
+                           template=custom_template,
+                           color='Region', # Color by region to use discrete_colors
+                           color_discrete_sequence=discrete_colors)
+fig_profit_region.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
+st.plotly_chart(fig_profit_region, use_container_width=True)
+
+st.subheader('Total Profit by Category')
+profit_by_category = filtered_df.groupby('Category')['Profit'].sum().reset_index()
+fig_profit_category = px.pie(profit_by_category, values='Profit', names='Category', title='Total Profit by Category',
+                            template=custom_template,
+                            color_discrete_sequence=discrete_colors)
+fig_profit_category.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
+st.plotly_chart(fig_profit_category, use_container_width=True)
+
+st.subheader('Top 10 Profit by Sub-Category')
+profit_by_subcategory = filtered_df.groupby('Sub-Category')['Profit'].sum().nlargest(10).reset_index()
+fig_profit_subcategory = px.bar(profit_by_subcategory, x='Sub-Category', y='Profit', title='Top 10 Profit by Sub-Category', height=400,
+                                template=custom_template,
+                                color='Sub-Category', # Color by sub-category
+                                color_discrete_sequence=discrete_colors)
+fig_profit_subcategory.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
+st.plotly_chart(fig_profit_subcategory, use_container_width=True)
+
+st.subheader('Profit by State in USA')
+profit_by_state = filtered_df.groupby('State')['Profit'].sum().reset_index()
+
+# State abbreviations mapping
+state_abbreviations = {
+    'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
+    'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'District of Columbia': 'DC',
+    'Florida': 'FL', 'Georgia': 'GA', 'Hawaii': 'HI', 'Idaho': 'ID', 'Illinois': 'IL',
+    'Indiana': 'IN', 'Iowa': 'IA', 'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA',
+    'Maine': 'ME', 'Maryland': 'MD', 'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN',
+    'Mississippi': 'MS', 'Missouri': 'MO', 'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV',
+    'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY',
+    'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH', 'Oklahoma': 'OK', 'Oregon': 'OR',
+    'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC', 'South Dakota': 'SD',
+    'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT', 'Virginia': 'VA',
+    'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
+}
+
+profit_by_state['State Abbreviation'] = profit_by_state['State'].map(state_abbreviations)
+
+fig_profit_state_map = px.choropleth(profit_by_state,
                                    locations='State',
                                    locationmode='USA-states',
-                                   color='Sales',
+                                   color='Profit',
                                    scope='usa',
-                                   color_continuous_scale="Viridis",
-                                   title='Total Sales by State',
-                                   height=600)
-st.plotly_chart(fig_sales_state_map, use_container_width=True)
+                                   color_continuous_scale="Viridis", # Changed from Greys to Viridis for testing
+                                   title='Total Profit by State',
+                                   hover_name='State',
+                                   hover_data={'State Abbreviation': True, 'Profit': ':,.2f'},
+                                   height=600,
+                                   template=custom_template)
+fig_profit_state_map.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
+st.plotly_chart(fig_profit_state_map, use_container_width=True)
