@@ -15,7 +15,7 @@ st.title('Sales Dashboard for USA Branches')
 # Load Data (Assuming the file is in the same path as before)
 @st.cache_data
 def load_data():
-    file_path = 'content/drive/MyDrive/Practica 7/SalidaVentas.xlsx'
+    file_path = 'datos/SalidaVentas.xlsx'
     df = pd.read_excel(file_path)
     df['Order Date'] = pd.to_datetime(df['Order Date'])
     return df
