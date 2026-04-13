@@ -29,22 +29,45 @@ st.write(f"Total Sales Records (filtered): {len(filtered_df):,}")
 st.write(filtered_df.head())
 
 st.subheader('Sales Over Time')
-fig_sales_time = px.line(filtered_df.sort_values('Order Date'), x='Order Date', y='Sales', title='Sales Over Time', height=400)
+fig_sales_time = px.line(
+    filtered_df.sort_values('Order Date'),
+    x='Order Date',
+    y='Sales',
+    title='Sales Over Time',
+    height=400
+)
 st.plotly_chart(fig_sales_time, use_container_width=True)
 
 st.subheader('Total Sales by Region')
 sales_by_region = filtered_df.groupby('Region')['Sales'].sum().reset_index()
-fig_sales_region = px.bar(sales_by_region, x='Region', y='Sales', title='Total Sales by Region', height=400)
+fig_sales_region = px.bar(
+    sales_by_region,
+    x='Region',
+    y='Sales',
+    title='Total Sales by Region',
+    height=400
+)
 st.plotly_chart(fig_sales_region, use_container_width=True)
 
 st.subheader('Total Sales by Category')
 sales_by_category = filtered_df.groupby('Category')['Sales'].sum().reset_index()
-fig_sales_category = px.pie(sales_by_category, values='Sales', names='Category', title='Total Sales by Category')
+fig_sales_category = px.pie(
+    sales_by_category,
+    values='Sales',
+    names='Category',
+    title='Total Sales by Category'
+)
 st.plotly_chart(fig_sales_category, use_container_width=True)
 
 st.subheader('Top 10 Sales by Sub-Category')
 sales_by_subcategory = filtered_df.groupby('Sub-Category')['Sales'].sum().nlargest(10).reset_index()
-fig_sales_subcategory = px.bar(sales_by_subcategory, x='Sub-Category', y='Sales', title='Top 10 Sales by Sub-Category', height=400)
+fig_sales_subcategory = px.bar(
+    sales_by_subcategory,
+    x='Sub-Category',
+    y='Sales',
+    title='Top 10 Sales by Sub-Category',
+    height=400
+)
 st.plotly_chart(fig_sales_subcategory, use_container_width=True)
 
 st.subheader('Sales by State in USA')
@@ -65,16 +88,34 @@ state_abbreviations = {
     'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
 }
 
+# ✅ Mapear abreviaciones
 sales_by_state['State Abbreviation'] = sales_by_state['State'].map(state_abbreviations)
 
-fig_sales_state_map = px.choropleth(sales_by_state,
-                                   locations='State',
-                                   locationmode='USA-states',
-                                   color='Sales',
-                                   scope='usa',
-                                   color_continuous_scale="Viridis",
-                                   title='Total Sales by State',
-                                   hover_name='State',
-                                   hover_data={'State Abbreviation': True, 'Sales': ':,.2f'},
-                                   height=600)
+# ✅ Eliminar filas sin abreviación (estados no mapeados)
+sales_by_state = sales_by_state.dropna(subset=['State Abbreviation'])
+
+fig_sales_state_map = px.choropleth(
+    sales_by_state,
+    locations='State Abbreviation',         # ✅ Abreviaciones como locations
+    locationmode='USA-states',
+    color='Sales',
+    scope='usa',
+    color_continuous_scale='Viridis',
+    title='Total Sales by State',
+    hover_name='State',                     # ✅ Nombre completo en el hover
+    hover_data={'State Abbreviation': True, 'Sales': ':,.2f'},
+    height=600
+)
+
+# ✅ Mostrar abreviaciones dentro de cada estado
+fig_sales_state_map.update_traces(
+    text=sales_by_state['State Abbreviation'],
+    texttemplate='%{text}',
+)
+
+# ✅ Título del color bar
+fig_sales_state_map.update_layout(
+    coloraxis_colorbar=dict(title='Sales (USD)')
+)
+
 st.plotly_chart(fig_sales_state_map, use_container_width=True)
