@@ -53,10 +53,7 @@ st.plotly_chart(fig_sales_subcategory, use_container_width=True)
 st.subheader('Sales by State in USA')
 sales_by_state = df.groupby('State')['Sales'].sum().reset_index()
 
-# --- Sales by State Map ---
-    st.subheader('Ventas por Estado (USA)')
- 
-    # Define state abbreviations within the script for standalone execution
+# Define state abbreviations within the script for standalone execution
     state_abbreviations = {
         'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
         'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'District of Columbia': 'DC',
