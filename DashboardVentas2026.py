@@ -49,5 +49,3 @@ fig_sales_state_map = px.choropleth(sales_by_state,
                                    height=600)
 st.plotly_chart(fig_sales_state_map, use_container_width=True)
 ''')
-
-print("Streamlit app 'dashboard_ventas.py' has been updated.")
