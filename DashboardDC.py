@@ -14,6 +14,13 @@ try:
 except FileNotFoundError:
     st.error("Error: El archivo 'dc-wikia-data.csv' no se encontró. Asegúrate de que la ruta sea correcta.")
     st.stop()
+# Añadir botón de descarga para el DataFrame de alineación
+st.download_button(
+    label="Descargar datos de Alineación (CSV)",
+    data=align_counts.to_csv(index=False).encode('utf-8'),
+    file_name='distribucion_alineacion.csv',
+    mime='text/csv',
+)
 
 # --- 1. Distribución de la Alineación de Personajes (ALIGN) ---
 st.header('1. Distribución de la Alineación de Personajes')
