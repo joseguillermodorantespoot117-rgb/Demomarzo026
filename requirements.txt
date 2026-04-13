@@ -1,5 +1,5 @@
 streamlit
-plotly_express
-pyngrok==1.2.1
 pandas
 numpy
+matplotlib
+pyngrok
