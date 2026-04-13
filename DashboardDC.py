@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import re # Import re for regex operations
 
 st.set_page_config(layout="wide") # Opcional: para usar todo el ancho de la página
 
@@ -19,6 +20,26 @@ except FileNotFoundError:
 if st.button('Ver DataFrame Completo'):
     st.subheader('DataFrame Completo de Personajes')
     st.dataframe(comics_df)
+
+# --- 0. Filtrar y Mostrar DataFrame ---
+st.header('0. Filtrar el DataFrame Completo')
+
+# Obtener todas las columnas excepto las numéricas para el filtrado de texto
+# o usar todas las columnas y manejar el tipo de filtro
+columns_to_filter = comics_df.columns.tolist()
+selected_column = st.selectbox('Selecciona una columna para filtrar', columns_to_filter)
+filter_value = st.text_input(f'Introduce el valor para filtrar en la columna \'{selected_column}\'')
+
+filtered_df = comics_df.copy()
+
+if filter_value:
+    # Utiliza expresiones regulares con límites de palabra (\b) para coincidir con palabras completas
+    # re.escape() se usa para escapar cualquier carácter especial en filter_value
+    filtered_df = filtered_df[filtered_df[selected_column].astype(str).str.contains(r'\b' + re.escape(filter_value) + r'\b', case=False, na=False)]
+
+st.subheader('DataFrame Filtrado')
+st.dataframe(filtered_df)
+
 
 # --- 1. Distribución de la Alineación de Personajes (ALIGN) ---
 st.header('1. Distribución de la Alineación de Personajes')
