@@ -7,7 +7,7 @@ st.title('Sales Dashboard for USA Branches')
 
 @st.cache_data
 def load_data():
-    file_path = 'datos/SalidaVentas.xlsx'
+    file_path = '/content/drive/MyDrive/Practica 7/SalidaVentas.xlsx'
     df = pd.read_excel(file_path)
     df['Order Date'] = pd.to_datetime(df['Order Date'])
     return df
@@ -39,6 +39,24 @@ st.plotly_chart(fig_sales_subcategory, use_container_width=True)
 
 st.subheader('Sales by State in USA')
 sales_by_state = df.groupby('State')['Sales'].sum().reset_index()
+
+# State abbreviations mapping
+state_abbreviations = {
+    'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
+    'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'District of Columbia': 'DC',
+    'Florida': 'FL', 'Georgia': 'GA', 'Hawaii': 'HI', 'Idaho': 'ID', 'Illinois': 'IL',
+    'Indiana': 'IN', 'Iowa': 'IA', 'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA',
+    'Maine': 'ME', 'Maryland': 'MD', 'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN',
+    'Mississippi': 'MS', 'Missouri': 'MO', 'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV',
+    'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY',
+    'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH', 'Oklahoma': 'OK', 'Oregon': 'OR',
+    'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC', 'South Dakota': 'SD',
+    'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT', 'Virginia': 'VA',
+    'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
+}
+
+sales_by_state['State Abbreviation'] = sales_by_state['State'].map(state_abbreviations)
+
 fig_sales_state_map = px.choropleth(sales_by_state,
                                    locations='State',
                                    locationmode='USA-states',
@@ -47,5 +65,6 @@ fig_sales_state_map = px.choropleth(sales_by_state,
                                    color_continuous_scale="Viridis",
                                    title='Total Sales by State',
                                    hover_name='State',
+                                   hover_data={'State Abbreviation': True, 'Sales': ':,.2f'},
                                    height=600)
 st.plotly_chart(fig_sales_state_map, use_container_width=True)
