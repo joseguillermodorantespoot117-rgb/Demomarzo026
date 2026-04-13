@@ -38,6 +38,13 @@ st.header('Overview of Profit Data')
 st.write(f"Total Profit Records (filtered): {len(filtered_df):,}")
 st.write(filtered_df.head())
 
+st.subheader('Profit Over Time')
+fig_profit_time = px.line(filtered_df.sort_values('Order Date'), x='Order Date', y='Profit', title='Profit Over Time', height=400,
+                          template=custom_template,
+                          line_color=line_color_single) # Using a single subdued color for the line
+fig_profit_time.update_layout(paper_bgcolor=bg_color, plot_bgcolor=bg_color)
+st.plotly_chart(fig_profit_time, use_container_width=True)
+
 st.subheader('Total Profit by Region')
 profit_by_region = filtered_df.groupby('Region')['Profit'].sum().reset_index()
 fig_profit_region = px.bar(profit_by_region, x='Region', y='Profit', title='Total Profit by Region', height=400,
